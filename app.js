@@ -10,6 +10,7 @@ let currentLeague = 'nfl';
 let selectedGame = null;
 let pollTimer = null;
 let lastPlayId = null;
+let gameFinal = false;
 
 // --- ESPN API helpers ---
 
@@ -158,6 +159,11 @@ async function loadPlays() {
     const { plays, gameInfo } = parsePlays(data);
     feed.update(plays, gameInfo);
 
+    if (gameInfo.status === 'post') {
+      gameFinal = true;
+      setPollLabel('final');
+    }
+
     const newLatest = plays[0]?.id;
     if (lastPlayId && newLatest !== lastPlayId) {
       // New play came in
@@ -176,7 +182,7 @@ function startPolling() {
   loadPlays();
   pollTimer = setInterval(() => {
     loadScoreboard();
-    loadPlays();
+    if (!gameFinal) loadPlays();
   }, POLL_INTERVAL);
 }
 
@@ -193,6 +199,7 @@ document.addEventListener('sport-change', (e) => {
   currentLeague = league;
   selectedGame = null;
   lastPlayId = null;
+  gameFinal = false;
 
   const feed = document.querySelector('play-feed');
   feed?.setEmpty();
@@ -215,6 +222,7 @@ document.addEventListener('game-select', (e) => {
 
   selectedGame = { id: gameId, sport, league };
   lastPlayId = null;
+  gameFinal = false;
   document.getElementById('selected-game-label').textContent = label;
 
   const feed = document.querySelector('play-feed');
