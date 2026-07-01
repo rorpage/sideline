@@ -14,8 +14,16 @@ let gameFinal = false;
 
 // --- ESPN API helpers ---
 
+function localDateStamp() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}${month}${day}`;
+}
+
 async function fetchScoreboard(sport, league) {
-  const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const today = localDateStamp();
   const url = `${ESPN_BASE}/${sport}/${league}/scoreboard?dates=${today}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Scoreboard fetch failed: ${res.status}`);
